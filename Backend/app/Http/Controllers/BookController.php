@@ -15,6 +15,11 @@ class BookController extends Controller
         $data['user_id'] = Auth::id();
 
         $book = Book::create($data);
-        return response()->json($book, 201);
+        return response()->json(["book"=>$book],201);
+    }
+    public function index()
+    {
+        $books = Book::all();
+        return response()->json(["books"=>$books],201);
     }
 }
