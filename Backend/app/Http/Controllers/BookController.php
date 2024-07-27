@@ -27,4 +27,11 @@ class BookController extends Controller
         $book=Book::where('slug',$slug)->get();
         return response()->json(["book"=>$book],201);
     }
+    public function destroy($id)
+    {
+        $book = Book::find($id);
+        $book->delete();
+
+        return response()->json(['message' => 'Book deleted successfully']);
+    }
 }
