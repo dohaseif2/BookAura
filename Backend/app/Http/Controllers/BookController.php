@@ -22,4 +22,9 @@ class BookController extends Controller
         $books = Book::all();
         return response()->json(["books"=>$books],201);
     }
+    public function show($slug)
+    {
+        $book=Book::where('slug',$slug)->get();
+        return response()->json(["book"=>$book],201);
+    }
 }

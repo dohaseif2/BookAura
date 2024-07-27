@@ -12,7 +12,7 @@ Route::post('/logout',[ AuthController::class,'logout'])->middleware('auth:sanct
 Route::prefix('books')->group(function () {
     Route::get('/', [BookController::class, 'index']);
     Route::post('/', [BookController::class, 'store'])->middleware('auth:sanctum');
-    Route::get('/{id}', [BookController::class, 'show']);
+    Route::get('/{slug}', [BookController::class, 'show']);
     Route::put('/{id}', [BookController::class, 'update']);
     Route::delete('/{id}', [BookController::class, 'destroy']);
 });
