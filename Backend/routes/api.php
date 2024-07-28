@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\CartController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,3 +17,5 @@ Route::prefix('books')->group(function () {
     Route::put('/{id}', [BookController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [BookController::class, 'destroy'])->middleware('auth:sanctum');
 });
+
+Route::post('/cart/add/{bookId}', [CartController::class, 'add'])->middleware('auth:sanctum');
