@@ -42,4 +42,21 @@ class CartController extends Controller
 
         return response()->json(['message' => 'Book added to cart'], 201);
     }
+    public function remove($bookId)
+    {
+        $cart = Cart::where('user_id', Auth::id())->first();
+
+        if (!$cart) {
+            return response()->json(['message' => 'Cart is empty'], 404);
+        }
+        $bookInCart = $cart->books()->where('book_id', $bookId)->exists();
+
+        if (!$bookInCart) {
+            return response()->json(['message' => 'Book not found in cart'], 404);
+        }
+
+        $cart->books()->detach($bookId);
+
+        return response()->json(['message' => 'Book removed from cart']);
+    }
 }
