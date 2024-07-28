@@ -45,7 +45,7 @@ class Book extends Model
         return $count ? "{$slug}-{$count}" : $slug;
     }
 
-   
+
     public function type()
     {
         return $this->belongsTo(Type::class);
@@ -57,5 +57,9 @@ class Book extends Model
     public function images()
     {
         return $this->hasMany(BookImage::class);
+    }
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_items')->withPivot('quantity');
     }
 }

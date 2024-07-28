@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,5 @@ Route::prefix('books')->group(function () {
 Route::post('/cart/add/{bookId}', [CartController::class, 'add'])->middleware('auth:sanctum');
 Route::get('/cart', [CartController::class, 'index'])->middleware('auth:sanctum');
 Route::delete('/cart/{bookId}', [CartController::class, 'remove'])->middleware('auth:sanctum');
+
+Route::post('/orders/place', [OrderController::class, 'placeOrder'])->middleware('auth:sanctum');
