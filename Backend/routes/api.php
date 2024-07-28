@@ -19,3 +19,4 @@ Route::prefix('books')->group(function () {
 });
 
 Route::post('/cart/add/{bookId}', [CartController::class, 'add'])->middleware('auth:sanctum');
+Route::get('/cart', [CartController::class, 'index'])->middleware('auth:sanctum');

@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+    public function index()
+    {
+        $cart = Cart::where('user_id', Auth::id())->first();
+
+        if (!$cart) {
+            return response()->json(['message' => 'Cart is empty'], 200);
+        }
+
+        $books = $cart->books()->get();
+
+        return response()->json(['cart' => $books]);
+    }
     public function add(StoreCartRequest $request, $bookId)
     {
         $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
