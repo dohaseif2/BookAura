@@ -5,14 +5,21 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Carts\StoreCartRequest;
 use App\Models\Book;
 use App\Models\Cart;
-use Illuminate\Http\Request;
+use App\Repositories\Contracts\CartRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
 class CartController extends Controller
 {
+    protected $cartRepository;
+
+    public function __construct(CartRepositoryInterface $cartRepository)
+    {
+        $this->cartRepository = $cartRepository;
+    }
+
     public function index()
     {
-        $cart = Cart::where('user_id', Auth::id())->first();
+        $cart = $this->cartRepository->getUserCart(Auth::id());
 
         if (!$cart) {
             return response()->json(['message' => 'Cart is empty'], 200);
@@ -22,9 +29,10 @@ class CartController extends Controller
 
         return response()->json(['cart' => $books]);
     }
+
     public function add(StoreCartRequest $request, $bookId)
     {
-        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        $cart = $this->cartRepository->getUserCart(Auth::id()) ?? Cart::create(['user_id' => Auth::id()]);
 
         $book = Book::find($bookId);
 
@@ -32,30 +40,26 @@ class CartController extends Controller
             return response()->json(['message' => 'Book not found'], 404);
         }
 
-        $existingBook = $cart->books()->where('book_id', $bookId)->first();
-
-        if ($existingBook) {
-            $cart->books()->updateExistingPivot($bookId, ['quantity' => $existingBook->pivot->quantity + $request->quantity]);
-        } else {
-            $cart->books()->attach($bookId, ['quantity' => $request->quantity]);
-        }
+        $this->cartRepository->addBookToCart($cart, $bookId, $request->quantity);
 
         return response()->json(['message' => 'Book added to cart'], 201);
     }
+
     public function remove($bookId)
     {
-        $cart = Cart::where('user_id', Auth::id())->first();
+        $cart = $this->cartRepository->getUserCart(Auth::id());
 
         if (!$cart) {
             return response()->json(['message' => 'Cart is empty'], 404);
         }
+
         $bookInCart = $cart->books()->where('book_id', $bookId)->exists();
 
         if (!$bookInCart) {
             return response()->json(['message' => 'Book not found in cart'], 404);
         }
 
-        $cart->books()->detach($bookId);
+        $this->cartRepository->removeBookFromCart($cart, $bookId);
 
         return response()->json(['message' => 'Book removed from cart']);
     }
