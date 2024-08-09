@@ -5,56 +5,69 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Books\StoreBookRequest;
 use App\Http\Requests\Books\UpdateBookRequest;
 use App\Models\Book;
-use Illuminate\Http\Request;
+use App\Repositories\Contracts\BookRepositoryInterface;
 use Illuminate\Support\Facades\Auth;
 
 class BookController extends Controller
 {
+    protected $bookRepository;
+
+    public function __construct(BookRepositoryInterface $bookRepository)
+    {
+        $this->bookRepository = $bookRepository;
+    }
+
     public function store(StoreBookRequest $request)
     {
         $data = $request->all();
         $data['user_id'] = Auth::id();
 
-        $book = Book::create($data);
+        $book = $this->bookRepository->create($data);
         return response()->json(["book" => $book], 201);
     }
+
     public function update(UpdateBookRequest $request, $id)
     {
-        $book = Book::find($id);
+        $book = $this->bookRepository->findById($id);
         if (!$book) {
             return response()->json(['error' => 'Book not found']);
         }
+
         $data = $request->all();
         $data['user_id'] = Auth::id();
 
-        $book->update($data);
-
-        return response()->json(['book' => $book], 200);
+        $updatedBook = $this->bookRepository->update($book, $data);
+        return response()->json(['book' => $updatedBook], 200);
     }
+
     public function index()
     {
-        $books = Book::all();
+        $books = $this->bookRepository->all();
         if ($books->isEmpty()) {
-            return response()->json(["message" => "There is no books"], 201);
+            return response()->json(["message" => "There are no books"], 200);
         }
-        return response()->json(["books" => $books], 201);
+
+        return response()->json(["books" => $books], 200);
     }
+
     public function show($slug)
     {
-        $book = Book::where('slug', $slug)->get();
+        $book = $this->bookRepository->findBySlug($slug);
         if (!$book) {
-            return response()->json(['error' => 'Book not found']);
+            return response()->json(['error' => 'Book not found'], 404);
         }
-        return response()->json(["book" => $book], 201);
+
+        return response()->json(["book" => $book], 200);
     }
+
     public function destroy($id)
     {
-        $book = Book::find($id);
+        $book = $this->bookRepository->findById($id);
         if (!$book) {
-            return response()->json(['error' => 'Book not found']);
+            return response()->json(['error' => 'Book not found'], 404);
         }
-        $book->delete();
 
-        return response()->json(['message' => 'Book deleted successfully']);
+        $this->bookRepository->delete($book);
+        return response()->json(['message' => 'Book deleted successfully'], 200);
     }
 }

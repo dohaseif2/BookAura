@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\BookRepository;
+use App\Repositories\Contracts\BookRepositoryInterface;
 use App\Services\PayMobService;
 use Illuminate\Support\ServiceProvider;
 
@@ -15,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PayMobService::class, function ($app) {
             return new PayMobService();
         });
+        $this->app->bind(BookRepositoryInterface::class, BookRepository::class);
     }
 
     /**
